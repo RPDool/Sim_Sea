@@ -8,13 +8,24 @@ public class GridGenerator : MonoBehaviour
     public GameObject cellPrefab;
     public Color color1 = Color.white;
     public Color color2 = Color.gray;
+    public Camera mainCamera;
+    public float cameraMoveSpeed = 0.1f;
 
-    void Start()
+    private Vector3 lastMousePosition;
+    private bool isDragging = false;
+
+    private void Start()
     {
         GenerateGrid();
+        CenterCamera();
     }
 
-    void GenerateGrid()
+    private void Update()
+    {
+        HandleCameraMovement();
+    }
+
+    private void GenerateGrid()
     {
         for (int x = 0; x < gridWidth; x++)
         {
@@ -26,7 +37,7 @@ public class GridGenerator : MonoBehaviour
         }
     }
 
-    void CreateCell(Vector2 position, Color cellColor)
+    private void CreateCell(Vector2 position, Color cellColor)
     {
         if (cellPrefab != null)
         {
@@ -36,6 +47,36 @@ public class GridGenerator : MonoBehaviour
             {
                 tile.SetColor(cellColor);
             }
+        }
+    }
+
+    private void CenterCamera()
+    {
+        if (mainCamera != null)
+        {
+            float centerX = (gridWidth - 1) * cellSize / 2f;
+            float centerY = (gridHeight - 1) * cellSize / 2f;
+            mainCamera.transform.position = new Vector3(centerX, centerY, mainCamera.transform.position.z);
+        }
+    }
+
+    private void HandleCameraMovement()
+    {
+        if (Input.GetMouseButtonDown(1)) // Right-click pressed
+        {
+            isDragging = true;
+            lastMousePosition = Input.mousePosition;
+        }
+        else if (Input.GetMouseButtonUp(1)) // Right-click released
+        {
+            isDragging = false;
+        }
+
+        if (isDragging)
+        {
+            Vector3 delta = mainCamera.ScreenToWorldPoint(lastMousePosition) - mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            mainCamera.transform.position += delta;
+            lastMousePosition = Input.mousePosition;
         }
     }
 }
