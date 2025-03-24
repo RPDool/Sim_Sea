@@ -62,12 +62,12 @@ public class GridGenerator : MonoBehaviour
 
     private void HandleCameraMovement()
     {
-        if (Input.GetMouseButtonDown(1)) // Right-click pressed
+        if (Input.GetMouseButtonDown(1))
         {
             isDragging = true;
             lastMousePosition = Input.mousePosition;
         }
-        else if (Input.GetMouseButtonUp(1)) // Right-click released
+        else if (Input.GetMouseButtonUp(1))
         {
             isDragging = false;
         }

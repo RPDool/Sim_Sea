@@ -1,26 +1,34 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems; // Required for detecting UI clicks
+using UnityEngine.EventSystems;
 
 public class PlacementManager : MonoBehaviour
 {
     public GameObject roadPrefab;
     public GameObject housePrefab;
-    public GameObject piratePortPrefab; // New Pirate Port prefab
+    public GameObject piratePortPrefab;
+    public GameObject shipyardPrefab;
+
     public Button equipRoadButton;
     public Button equipHouseButton;
-    public Button equipPiratePortButton; // New button for Pirate Port
+    public Button equipPiratePortButton;
+    public Button equipShipyardButton; 
 
     private GameObject selectedPrefab = null;
-    public float cellSize = 1f; // Ensure grid snapping works properly
-    public LayerMask ignoreLayer; // Ignore grid tile layer
-    public float gapSize = 0.05f; // Small gap to ensure colliders don't touch
+    public float cellSize = 1f;
+    public LayerMask ignoreLayer;
+    public float gapSize = 0.05f;
+
+    private StatManager statManager;
 
     private void Start()
     {
         equipRoadButton.onClick.AddListener(() => SelectObject(roadPrefab));
         equipHouseButton.onClick.AddListener(() => SelectObject(housePrefab));
-        equipPiratePortButton.onClick.AddListener(() => SelectObject(piratePortPrefab)); // Add listener for Pirate Port
+        equipPiratePortButton.onClick.AddListener(() => SelectObject(piratePortPrefab));
+        equipShipyardButton.onClick.AddListener(() => SelectObject(shipyardPrefab));
+
+        statManager = FindFirstObjectByType<StatManager>();
     }
 
     private void Update()
@@ -39,38 +47,31 @@ public class PlacementManager : MonoBehaviour
     private void PlaceObject()
     {
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorldPos.z = 0.5f;  // Set z to a higher value to place the object in front of the UI buttons
+        mouseWorldPos.z = 0.5f;
 
-        Vector2 gridPos = GetSnappedGridPosition(mouseWorldPos);  // Grid snap position
+        Vector2 gridPos = GetSnappedGridPosition(mouseWorldPos);
 
         if (CanPlaceObject(gridPos))
         {
-            Instantiate(selectedPrefab, gridPos, Quaternion.identity);  // Place the object if the position is clear
+            Instantiate(selectedPrefab, gridPos, Quaternion.identity);
         }
     }
 
     private bool CanPlaceObject(Vector2 position)
     {
-        // Check if the selected prefab is a house (needs 3x3 space)
+        float sizeX = 1, sizeY = 1;
+
         if (selectedPrefab == housePrefab)
         {
-            Collider2D[] colliders = Physics2D.OverlapBoxAll(position, new Vector2(3 * cellSize - gapSize, 3 * cellSize - gapSize), 0, ~ignoreLayer);
-            return colliders.Length == 0; // Ensure no overlap
+            sizeX = sizeY = 3;
         }
-        // If it's a road (needs 1x1 space)
-        else if (selectedPrefab == roadPrefab)
+        else if (selectedPrefab == piratePortPrefab || selectedPrefab == shipyardPrefab)
         {
-            Collider2D[] colliders = Physics2D.OverlapBoxAll(position, new Vector2(cellSize - gapSize, cellSize - gapSize), 0, ~ignoreLayer);
-            return colliders.Length == 0; // Ensure no overlap
-        }
-        // If it's a pirate port (let's assume it needs 2x2 space)
-        else if (selectedPrefab == piratePortPrefab)
-        {
-            Collider2D[] colliders = Physics2D.OverlapBoxAll(position, new Vector2(2 * cellSize - gapSize, 2 * cellSize - gapSize), 0, ~ignoreLayer);
-            return colliders.Length == 0; // Ensure no overlap
+            sizeX = sizeY = 2;
         }
 
-        return true;  // If no object is selected, allow placement
+        Collider2D[] colliders = Physics2D.OverlapBoxAll(position, new Vector2(sizeX * cellSize - gapSize, sizeY * cellSize - gapSize), 0, ~ignoreLayer);
+        return colliders.Length == 0;
     }
 
     private Vector2 GetSnappedGridPosition(Vector3 worldPos)
@@ -81,7 +82,6 @@ public class PlacementManager : MonoBehaviour
         );
     }
 
-    // Check if the pointer is over a UI element (to prevent placing objects while clicking UI buttons)
     private bool IsPointerOverUIObject()
     {
         PointerEventData pointerData = new PointerEventData(EventSystem.current)
@@ -89,10 +89,9 @@ public class PlacementManager : MonoBehaviour
             position = Input.mousePosition
         };
 
-        // Raycast against the UI
         var results = new System.Collections.Generic.List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
 
-        return results.Count > 0; // Return true if any UI element was hit
+        return results.Count > 0;
     }
 }
