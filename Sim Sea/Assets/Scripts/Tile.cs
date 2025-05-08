@@ -4,7 +4,7 @@ public class Tile : MonoBehaviour
 {
     private SpriteRenderer sr;
     private Color originalColor;
-    public Color hoverColor = Color.yellow; // Set this in the Inspector
+    public Color hoverColor = Color.yellow;
 
     private void Start()
     {
@@ -21,7 +21,7 @@ public class Tile : MonoBehaviour
             sr = GetComponent<SpriteRenderer>();
 
         sr.color = color;
-        originalColor = color; // Update original color when set
+        originalColor = color;
     }
 
     private void OnMouseEnter()

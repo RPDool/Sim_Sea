@@ -5,11 +5,6 @@ public class StatManager : MonoBehaviour
 {
     public static StatManager Instance { get; private set; }
 
-    [HideInInspector] public int totalPeople = 0;
-    
-    [Header("UI References")]
-    [SerializeField] private TextMeshProUGUI populationText;
-    
     [Header("Population")]
     [SerializeField] private int space = 0;
     [SerializeField] private int population = 0;
@@ -22,6 +17,9 @@ public class StatManager : MonoBehaviour
     [SerializeField] private int residentialBuildings = 0;
     [SerializeField] private int commercialZones = 0;
     [SerializeField] private int industrialZones = 0;
+
+    [Header("UI References")]
+    [SerializeField] private TextMeshProUGUI populationText;
 
     private const int peoplePerResidentialBuilding = 5;
     private const int jobsPerCommercialZone = 2;
